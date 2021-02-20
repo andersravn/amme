@@ -23,7 +23,7 @@ export function Code(props: Props) {
         ref={inputEl}
         value={window.location.href + code}
         type="text"
-        readOnly
+        onChange={() => {}}
       />
       {code}
     </div>
