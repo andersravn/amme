@@ -1,24 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+import { Timer, DarkMode } from "./components";
+import "firebase/firestore";
+import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import { Feeding, FeedingType } from "./components/Feeding";
+import { Daily, Code } from "./components";
+import { getCode } from "./components/Code";
 
 function App() {
+  const f = useFirestore();
+
+  const code = getCode();
+
+  const collectionRef = f.collection(code).orderBy("endedAt", "desc");
+  const { data } = useFirestoreCollectionData<FeedingType>(collectionRef);
+  console.log(data);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="flex flex-col items-center min-h-screen pt-16 text-gray-900 dark:bg-gray-800 dark:text-gray-100 App">
+      <DarkMode />
+      <Code />
+      <div className="mb-8">
+        <Timer
+          onSave={(feeding) => {
+            if (code) {
+              f.collection(code).add({ ...feeding });
+            }
+          }}
+        />
+      </div>
+      {data ? (
+        <>
+          <Daily feedings={data} />
+          {data.reverse().map((f) => (
+            <Feeding feeding={f} key={f.startedAt} />
+          ))}
+        </>
+      ) : (
+        "Loading..."
+      )}
     </div>
   );
 }
