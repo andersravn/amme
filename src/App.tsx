@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "./App.css";
 import { Timer, DarkMode } from "./components";
 import "firebase/firestore";
